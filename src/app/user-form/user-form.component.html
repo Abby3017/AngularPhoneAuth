@@ -1,0 +1,48 @@
+<p>
+  user-form works!
+</p>
+<form novalidate (ngSubmit)="onSubmit(user)" [formGroup]="user">
+    <label>
+      <span>Full name</span>
+      <input type="text" placeholder="Your full name" formControlName="name">
+    </label>
+    <div class="error" *ngIf="user.get('name').touched && user.get('name').hasError('required')">
+      Name is required
+    </div>
+    <div class="error" *ngIf="user.get('name').touched && user.get('name').hasError('minlength')">
+      Minimum of 2 characters
+    </div>
+    <div formGroupName="account">
+      <label>
+        <span>Email address</span>
+        <input type="email" placeholder="Your email address" formControlName="email">
+      </label>
+      <div
+        class="error"
+        *ngIf="user.get('account').get('email').hasError('required') && user.get('account').get('email').touched">
+        Email is required
+      </div>
+      <label>
+        <span>Confirm address</span>
+        <input type="email" placeholder="Confirm your email address" formControlName="confirm">
+      </label>
+      <div
+        class="error"
+        *ngIf="user.get('account').get('confirm').hasError('required') && user.get('account').get('confirm').touched">
+        Confirming email is required
+      </div>
+    </div>
+    <div>
+      <span>Enter Lang List</span>
+      <button type="button" (click)="addLang(i)"></button>          
+      <ul class="list-group" formArrayName="langs">
+        <div *ngFor="let lang of user.controls['langs'].controls;let i = index">
+          <div class="lang-box" formGroupName="{{i}}">
+            <span for="description">Language Name</span>
+            <input type="text" placeholder="Hindi" formControlName="langName">
+          </div>
+        </div>
+      </ul>
+    </div>
+    <button type="submit" [disabled]="user.invalid">Sign up</button>
+  </form>

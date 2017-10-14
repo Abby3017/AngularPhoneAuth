@@ -1,6 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { AuthService } from '../services/auth-service.service';
+import {Router} from '@angular/router';
 import * as firebase from 'firebase';
+
+declare var grecaptcha:any;
 
 @Component({
   selector: 'app-phone-login',
@@ -13,11 +16,11 @@ export class PhoneLoginComponent implements OnInit {
   phoneNumber = new PhoneNumber()
   verificationCode: string;
   user: any;
-  constructor(private win: AuthService) { }
+  constructor(private win: AuthService, private router: Router) { }
 
   ngOnInit() {
     this.windowRef = this.win.windowRef
-    this.windowRef.recapthaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container')
+    this.windowRef.recapthaVerifier = new firebase.auth.RecaptchaVerifier('recaptchaContainer')
     this.windowRef.recapthaVerifier.render()
   }
 
@@ -28,16 +31,26 @@ export class PhoneLoginComponent implements OnInit {
       .then(result => {
         this.windowRef.confirmationResult = result;
       })
-      .catch(error => console.log(error));
+      .catch(error => {console.log(error);
+        appVerifier.render().then(function(recaptchaContainer) {
+          grecaptcha.reset(recaptchaContainer);  //https://stackoverflow.com/questions/41165940/google-recaptcha-reset-in-typescript
+        })
+      });
   }
 
   verifyLoginCode() {
     this.windowRef.confirmationResult
       .confirm(this.verificationCode)
       .then(result => {
-        this.user = result.user
+        this.user = result.user;
+        this.router.navigate(['/form-fill']);
       })
       .catch(error => console.log(error, "Incorrect code entered?"));
+  }
+
+  moveForm() {
+    this.router.navigate(['/form-fill']);
+    // this.router.navigateByUrl('/form-fill');
   }
 
 }
