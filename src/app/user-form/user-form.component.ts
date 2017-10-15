@@ -1,15 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl,FormGroup,Validators,FormArray } from '@angular/forms';
-// import { AngularFirestore, AngularFirestoreDocument } from 'angularfire2/firestore';
+import { AngularFirestore, AngularFirestoreDocument, AngularFirestoreCollection } from 'angularfire2/firestore';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-user-form',
   templateUrl: './user-form.component.html',
   styleUrls: ['./user-form.component.css']
 })
+
 export class UserFormComponent implements OnInit {
   user: FormGroup;
-  constructor() { }
+  col: any;
+  UserCollectionRef: AngularFirestoreCollection<User>;
+  user$: Observable<User[]>;
+  constructor(private afs:AngularFirestore) { 
+    // this.col = afs.collection('users');
+    this.UserCollectionRef = afs.collection('users');
+    this.user$ = this.UserCollectionRef.valueChanges();   //to get updated value when data changes
+    console.log(this.UserCollectionRef);
+  }
 
   ngOnInit() {
     let langs: FormArray = new FormArray([]);
@@ -25,6 +35,7 @@ export class UserFormComponent implements OnInit {
 
   onSubmit({ value, valid }: { value: User, valid: boolean }) {
     console.log(value, valid);
+    this.UserCollectionRef.add(value);
   }
 
   addLang(lang?: string):void {
